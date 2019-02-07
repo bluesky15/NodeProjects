@@ -1,7 +1,5 @@
-const express = require('express')
-const app = express()
-const port = 3000
-
-app.get('/', (req, res) => res.send('Hello World!'))
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+function hideString(str){
+    return str.replace(/[a-zA-Z]/g,'X');
+}
+var hidden = hideString("hello World")
+console.log(hidden);
