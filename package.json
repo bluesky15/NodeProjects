@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/erlalitkumar/NodeProjects.git"
+    "url": "git+https://github.com/bluesky15/NodeProjects.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/erlalitkumar/NodeProjects/issues"
+    "url": "https://github.com/bluesky15/NodeProjects/issues"
   },
-  "homepage": "https://github.com/erlalitkumar/NodeProjects#readme",
+  "homepage": "https://github.com/bluesky15/NodeProjects#readme",
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.18.2"
   }
 }

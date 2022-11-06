@@ -1,13 +1,13 @@
-function delay(seconds, callback) {
-  setTimeout(callback, seconds * 1000);
-}
-console.log('starting delays');
-delay(2, () => {
-  console.log('two seconds');
-  delay(1, () => {
-    console.log('three seconds');
-    delay(1, () => {
-      console.log('four seconds');
-    });
-  });
-});
+const express = require('express')
+const app = express()
+const port = 3000
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
+
+
