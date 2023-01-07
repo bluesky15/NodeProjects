@@ -1,59 +1,95 @@
 const express = require("express");
+bodyParser = require("body-parser");
+morgan = require("morgan");
+jwt = require("jsonwebtoken");
+config = require("../configuration/config");
+
+const ProtectedRoutes = express.Router();
+
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.get("/", (req, res) => res.type('html').send(html));
+app.use("/api", ProtectedRoutes);
+//set secret
+app.set("Secret", config.secret);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+// use morgan to log requests to the console
+app.use(morgan("dev"));
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
+// parse application/json
+app.use(bodyParser.json());
+
+app.get("/", function (req, res) {
+  res.send(`Hello world  app is running on http://localhost:${port}/`);
+});
+
+app.post("/authenticate", (req, res) => {
+  if (req.body.username === "lalit") {
+    if (req.body.password === 123) {
+      const payload = {
+        check: true,
+      };
+
+      var token = jwt.sign(payload, app.get("Secret"), {
+        expiresIn: "24h", // expires in 24 hours
+      });
+
+      res.json({
+        message: "authenticated",
+        token: token,
+      });
+    } else {
+      res.json({ message: "please check your password !" });
+    }
+  } else {
+    res.json({ message: "user not found !" });
+  }
+});
+
+ProtectedRoutes.use((req, res, next) => {
+  // check header for the token
+  var token = req.headers["access-token"];
+
+  // decode token
+  if (token) {
+    // verifies secret and checks if the token is expired
+    jwt.verify(token, app.get("Secret"), (err, decoded) => {
+      if (err) {
+        return res.json({ message: "invalid token" });
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        next();
       }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
+    });
+  } else {
+    // if there is no token
+
+    res.send({
+      message: "No token provided.",
+    });
+  }
+});
+
+ProtectedRoutes.get('/getAllProducts',(req,res)=>{
+  let products = [
+      {
+          id: 1,
+          name:"cheese"
+      },
+      {
+         id: 2,
+         name:"carottes"
+     }
+  ]
+ 
+  res.json(products)
+ 
+ })
+
+app.listen(port, () => {
+  console.log(`server is running on port ${port}`);
+});
